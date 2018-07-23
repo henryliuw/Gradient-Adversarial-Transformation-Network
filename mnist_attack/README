@@ -17,7 +17,10 @@ mnist_attack
     ----train_cnn()
     
 ----FGSM 提供基于FGSM算法的攻击
-    ----perturbe(noise_rate,n)
+    ----perturbe(X_test, y_test, noise_rate, printImage, saveImage, savePath)
+    
+----onePixel 提供基于one-pixel的攻击
+    ----perturbe(X_test, y_test, scale, population, iteration)
     
 ----evaluate 提供用于评估和总结攻击样本的相关函数
     ----outputPoss(cnn,adverserial)
