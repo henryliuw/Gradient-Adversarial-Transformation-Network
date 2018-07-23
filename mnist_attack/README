@@ -1,5 +1,6 @@
 
 mnist_attack是一个提供mnist数据集训练，攻击，评估于一体的模块
+使用此模块时请单独打开train_cnn.py运行，将模型存入IDE缓存中，否则模型将无法成功load
 
 目录
 mnist_attack
