@@ -1,1 +1,27 @@
 
+mnist_attack是一个提供mnist数据集训练，攻击，评估于一体的模块
+
+目录
+mnist_attack
+----__init__
+
+----tool 提供各种工具函数
+    ----load_train_data()
+    ----load_test_data()
+    ----load_cnn()
+    ----imshow()
+
+----train_cnn 训练一个识别mnist的CNN网络
+    ----class cnn
+    ----train_cnn()
+    
+----FGSM 提供基于FGSM算法的攻击
+    ----perturbe(noise_rate,n)
+    
+----evaluate 提供用于评估和总结攻击样本的相关函数
+    ----outputPoss(cnn,adverserial)
+    
+    
+    
+    
+CONTRIBUTOR:Zhang Bohao
