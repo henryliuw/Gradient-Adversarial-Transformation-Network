@@ -27,12 +27,12 @@ def load_test_data():
                                             download=True)
     return test_data
 
-def load_cnn():
+def load_cnn(path='mnist_cnn_model.pkl'):
     '''
     USAGE: 直接使用，返回已经训练好的神经网络
     CONTRIBUTOR: 张博皓,2018/7/23
     '''
-    return tc.load('mnist_cnn_model.pkl')
+    return tc.load(path)
 
 
 def imshow(instance, label):
