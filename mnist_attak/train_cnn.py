@@ -12,7 +12,7 @@ class CNN_1(nn.Module):
     '''
     定义了一个识别MNIST的CNN网络
     网络结构:
-        5*5 Conv -> 3*3 Conv -> 3*3 Conv -> FC -> FC -> FC
+        5*5 Conv -> 3*3 Conv -> 3*3 Conv -> FC -> FC 
     最终识别正确率：98.16%
     '''
     def __init__(self):
@@ -49,18 +49,20 @@ class CNN_1(nn.Module):
             ),      # output shape (64, 7, 7)
             nn.ReLU(),  # activation
         )
-        self.layer4_linear = nn.Linear(64 * 7 * 7, 32 * 3 * 3)   # fully connected layer, output 10 classes
-        self.layer5_linear = nn.Linear(32 * 3 * 3, 64)
-        self.layer6_linear = nn.Linear(64, 10)
-        
+        self.layer4_linear = nn.Sequential(
+            nn.Linear(64 * 7 * 7, 64),   # fully connected layer, output 10 classes
+            nn.Sigmoid()
+        )
+        self.layer5_linear = nn.Sequential(
+            nn.Linear(64, 10),
+        )
     def forward(self, x):
         x = self.layer1_conv(x)
         x = self.layer2_conv(x)
         x = self.layer3_conv(x)
         x = x.view(x.size(0), -1)   # 展平多维的卷积图成 (batch_size, 32 * 7 * 7)
         x = self.layer4_linear(x)
-        x = self.layer5_linear(x)
-        output = self.layer6_linear(x)
+        output = self.layer5_linear(x)
         output = output.sigmoid()
         output = output / output.sum(1).view(output.size(0), -1)
         return output
@@ -69,7 +71,7 @@ class CNN_2(nn.Module):
     '''
     定义了一个识别MNIST的CNN网络
     网络结构:
-        3*3 Conv -> FC -> FC -> FC
+        FC -> FC -> FC
     最终识别正确率：94.56%
     '''
     def __init__(self):
@@ -85,9 +87,17 @@ class CNN_2(nn.Module):
             nn.ReLU(),    # activation
             nn.MaxPool2d(kernel_size=2),    # 在 2x2 空间里向下采样, output shape (20, 14, 14)
         )
-        self.layer2_linear = nn.Linear(16 * 14 * 14, 32 * 32)   # fully connected layer, output 10 classes
-        self.layer3_linear = nn.Linear(32 * 32, 16 * 16)
-        self.layer4_linear = nn.Linear(16 * 16, 10)
+        self.layer2_linear = nn.Sequential(
+            nn.Linear(16 * 14 * 14, 32 * 32),   # fully connected layer, output 10 classes
+            nn.Sigmoid()
+        )
+        self.layer3_linear = nn.Sequential(
+            nn.Linear(32 * 32, 16 * 16),
+            nn.Sigmoid()
+        )
+        self.layer4_linear = nn.Sequential(
+            nn.Linear(16 * 16, 10),
+        )
         
     def forward(self, x):
         x = self.layer1_conv(x)
@@ -105,30 +115,41 @@ def train_cnn(CNN=CNN_1):
         CONTRIBUTOR: 张博皓 2018/7/21
     '''
     
+    torch = tc
+    device = device = torch.device(
+        "cuda:0" if torch.cuda.is_available() else "cpu")
+
     train_data = tool.load_train_data()
     X_test = tool.load_test_image()
     y_test = tool.load_test_label()
+    X_test, y_test = X_test.to(device), y_test.to(device)
     train_batch = Data.DataLoader(dataset=train_data, batch_size=100,shuffle=True)
     
     print('=====Train Network=====')
-    cnn=CNN()
+    cnn=CNN().to(device)
     loss_func=tc.nn.CrossEntropyLoss()
     optimizer=tc.optim.Adam(cnn.parameters(),lr=0.001)
     
-    for step, (x, y) in enumerate(train_batch):
-        output = cnn(x)
-        loss = loss_func(output, y)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        if step % 100 == 0:
-            outputs = cnn(X_test)
-            _, predicted = tc.max(outputs.data, 1)
-            total = y_test.size(0)
-            correct = (predicted == y_test).sum().item()
-            accuracy = correct/total
-            print('|Step:', step,'|train loss:%.4f' % loss.data.item(), '|test accuracy:%.4f' % accuracy)
+    for epoch in range(3):
+        for step, (x, y) in enumerate(train_batch):
+            x, y = x.to(device), y.to(device)
+            output = cnn(x)
+            loss = loss_func(output, y)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            if step % 100 == 0:
+                outputs = cnn(X_test)
+                _, predicted = tc.max(outputs.data, 1)
+                total = y_test.size(0)
+                correct = (predicted == y_test).sum().item()
+                accuracy = correct/total
+                print('|Step:', step,'|train loss:%.4f' % loss.data.item(), '|test accuracy:%.4f' % accuracy)
         
     print('=====Train Complete=====')
     
     tc.save(cnn.state_dict(), 'mnist_'+CNN.__name__+'_model_params.pkl')
+    
+if __name__ =="__main__":
+    train_cnn(CNN_1)
+    train_cnn(CNN_2)
