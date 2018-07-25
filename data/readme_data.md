@@ -1,5 +1,5 @@
 ## File name convention
-all saved model of MNIST-GATN is here.
+saved model of MNIST-GATN is here.
 
 Two different kinds of GATN (GATN_FC/GATN_CONV), two different kinds of CNN (CNN_1/CNN_2), ten differnet target, in total 40 models
 
