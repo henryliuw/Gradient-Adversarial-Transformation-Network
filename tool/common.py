@@ -67,7 +67,7 @@ def imshow(image, label):
     '''
     classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
     plt.axis('off')
-    if image.shape[1] == 28: # if mnist
+    if image.shape[2] == 28: # if mnist
         plt.imshow(image.reshape(28,28), cmap='gray')
         plt.title('%i' % label, fontsize = 20)
     else: # if cifar10    
