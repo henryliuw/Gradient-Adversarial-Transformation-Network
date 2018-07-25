@@ -6,7 +6,6 @@ import torch.utils.data as Data
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.nn as nn
-import tool
 
 class CNN_1(nn.Module):
     '''
@@ -103,18 +102,27 @@ class CNN_2(nn.Module):
         output = output / output.sum(1).view(output.size(0), -1)
         return output
     
-def train_cnn(CNN=CNN_1):
+def train_cnn(CNN, batch_size=100, show_step=100):
     '''
-        USAGE: 自动训练CNN网络，默认为CNN_1,并保存整个模型到同级文件夹中，名称为：mnist_CNN名字_model.pkl
-        CONTRIBUTOR: 张博皓 2018/7/21
+    INPUT: 
+        1.输入一个需要训练的网络结构
+        2.每次批量梯度下降的样本尺寸，默认为100
+        3.多少次迭代中显示一步损失函数与测试准确率，默认为100步
+    USAGE: 自动训练CNN网络，并保存整个模型到同级文件夹中，名称为：mnist_CNN名字_model.pkl
+    CONTRIBUTOR: 张博皓 2018/7/21
     '''
     
-    train_data = tool.load_train_data()
-    X_test = tool.load_test_image()
-    y_test = tool.load_test_label()
-    train_batch = Data.DataLoader(dataset=train_data, batch_size=100,shuffle=True)
+    train_data = tv.datasets.MNIST(root='data/mnist', train=True,
+                                            transform=tv.transforms.ToTensor(),
+                                            download=True)
+    test_data = tv.datasets.MNIST(root='data/mnist', train=False,
+                                            transform=tv.transforms.ToTensor(),
+                                            download=True)
+    X_test = tc.tensor(test_data.test_data.reshape(10000,1,28,28),dtype=tc.float) / 255
+    y_test = test_data.test_labels
+    train_batch = Data.DataLoader(dataset=train_data, batch_size=batch_size,shuffle=True)
     
-    print('=====Train Network=====')
+    print('=====Train Network '+CNN.__name__+'=====')
     cnn=CNN()
     loss_func=tc.nn.CrossEntropyLoss()
     optimizer=tc.optim.Adam(cnn.parameters(),lr=0.001)
@@ -125,7 +133,7 @@ def train_cnn(CNN=CNN_1):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if step % 100 == 0:
+        if step % show_step == 0:
             outputs = cnn(X_test)
             _, predicted = tc.max(outputs.data, 1)
             total = y_test.size(0)
@@ -138,4 +146,5 @@ def train_cnn(CNN=CNN_1):
     tc.save(cnn.state_dict(), 'mnist_'+CNN.__name__+'_model_params.pkl')
 
 if __name__ == '__main__' :
-    train_cnn()
+    train_cnn(CNN_1)
+    train_cnn(CNN_2)
