@@ -69,15 +69,15 @@ class CNN_2(nn.Module):
     '''
     定义了一个识别MNIST的CNN网络
     网络结构:
-        FC -> FC -> FC
-    最终识别正确率：98.16%
+        3*3 Conv -> FC -> FC -> FC
+    最终识别正确率：94.56%
     '''
     def __init__(self):
         super(CNN_2, self).__init__()
         self.layer1_conv = nn.Sequential(  # input shape (1, 28, 28)
             nn.Conv2d(
                 in_channels=1,      # input height
-                out_channels=32,    # n_filters
+                out_channels=16,    # n_filters
                 kernel_size=3,      # filter size
                 stride=1,           # filter movement/step
                 padding=1,      # 如果想要 con2d 出来的图片长宽没有变化, padding=(kernel_size-1)/2 当 stride=1
@@ -85,8 +85,8 @@ class CNN_2(nn.Module):
             nn.ReLU(),    # activation
             nn.MaxPool2d(kernel_size=2),    # 在 2x2 空间里向下采样, output shape (20, 14, 14)
         )
-        self.layer2_linear = nn.Linear(32 * 14 * 14, 36 * 36)   # fully connected layer, output 10 classes
-        self.layer3_linear = nn.Linear(36 * 36, 16 * 16)
+        self.layer2_linear = nn.Linear(16 * 14 * 14, 32 * 32)   # fully connected layer, output 10 classes
+        self.layer3_linear = nn.Linear(32 * 32, 16 * 16)
         self.layer4_linear = nn.Linear(16 * 16, 10)
         
     def forward(self, x):
