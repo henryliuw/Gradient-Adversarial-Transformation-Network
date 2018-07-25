@@ -9,11 +9,15 @@ mnist_attack
 ----tool 提供各种工具函数
     ----load_train_data()
     ----load_test_data()
-    ----load_cnn()
+    ----load_test_image()
+    ----load_test_label()
+    ----load_cnn_1()
+    ----load_cnn_2()
     ----imshow()
 
 ----train_cnn 训练一个识别mnist的CNN网络
-    ----class cnn
+    ----class CNN_1
+    ----class CNN_2
     ----train_cnn()
     
 ----FGSM 提供基于FGSM算法的攻击
