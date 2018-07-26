@@ -88,8 +88,9 @@ def accuracy(y_pred, y_label, target):
     total = y_label.size(0)
     correct = (predicted == y_label).sum().item()
     accuracy = correct/total
-    targetotal = (predicted == target).sum().item()
-    targetrate = targetotal / total
+    non_target_idx = (y_label != target)
+    targetotal = (predicted[non_target_idx] == target).sum().item()
+    targetrate = targetotal / non_target_idx.sum().item()
     return accuracy, targetrate
 
 
@@ -137,7 +138,7 @@ def main(beta=3, SAVE_PATH='data/GatnFC_mnistConv_target6.parameter', atn='fc', 
     # beta=3 is good for fc on CNN1
     # beta=5 is good for fc on CNN2
     # beta=1 is good for Conv on CNN1
-    # beta=? is good for Conv on CNN2
+    # beta=0.3  is good for Conv on CNN2
     print("beta=", beta)
     x_train, y_train, x_test, y_test = cm.load_data('mnist')
     # cleaning data
@@ -190,10 +191,8 @@ def main(beta=3, SAVE_PATH='data/GatnFC_mnistConv_target6.parameter', atn='fc', 
                 x_batch, cnn_mnist, target)  # target gradient
             x_adv = atn(x_batch, x_grad)    # the network output image
             y_now = cnn_mnist(x_adv)
-            y_origin = cnn_mnist(x_batch)
 
             # calculating loss
-            y_origin.requires_grad_(False)
             lossX = lossX_fn(x_adv, x_batch)
             lossY = lossY_fn(y_now, target)  # target loss Y
             loss = lossX * atn.beta + lossY
@@ -211,9 +210,9 @@ def main(beta=3, SAVE_PATH='data/GatnFC_mnistConv_target6.parameter', atn='fc', 
                 x_adv_test = atn(x_test, x_test_grad)
                 y_pred = cnn_mnist(x_adv_test)
                 acc, targetrate = accuracy(y_pred, y_test, target)
-                print('Epoch:', epoch, '|Step:', iteration, '|train loss:%.4f' %
-                      loss.item(), '|image norm:%.4f' % lossX, '|test accuracy:%.4f' % acc, '|target rate:%.4f' % targetrate)
-                if lossX < 0.011 and acc < 0.25 and targetrate > 0.88:
+                print('Epoch:', epoch, '|Step:', iteration, '|loss Y:%.4f' %
+                      lossY.item(), '|image norm:%.4f' % lossX, '|test accuracy:%.4f' % acc, '|target rate:%.4f' % targetrate)
+                if lossX < 0.011 and acc < 0.23 and targetrate > 0.86:
                     torch.save(atn.state_dict(), SAVE_PATH)
                     print('model saved')
                     return
@@ -223,7 +222,7 @@ def main(beta=3, SAVE_PATH='data/GatnFC_mnistConv_target6.parameter', atn='fc', 
                     atn.beta *= 1.15
                 elif lossX >= 0.015:
                     atn.beta *= 1.05
-                elif lossX >= 0.011:
+                elif lossX >= 0.01:
                     atn.beta *= 1.02
 
                 if acc >= 0.4:
@@ -299,7 +298,7 @@ def original_main():
 
 
 if __name__ == "__main__":
-    i = 7
-    save_path = 'data/GatnFC_mnistCNN_2_target' + str(i) + '.parameter'
+    i = 0
+    save_path = 'data/GatnConv_mnistCNN_2_target' + str(i) + '.parameter'
     C_PATH='data/mnist_CNN_2_model_params.pkl'
-    main(beta=5,target=i,SAVE_PATH=save_path, batch_size=100, atn='fc', classifier='2', classifier_PATH=C_PATH, epoch_n=2, continue_training=True)
+    main(beta=0.6,target=i,SAVE_PATH=save_path, batch_size=5, atn='conv', classifier='2', classifier_PATH=C_PATH, epoch_n=1, continue_training=True)
