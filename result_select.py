@@ -55,7 +55,7 @@ def mnist_find(target, origin, num_pic, batchsize, attacker, mnist_net):
 
     atn.load_state_dict(torch.load(ATN_FILE_PATH))
 
-    start_idx = np.random.randint(0, 9500)
+    start_idx = np.random.randint(0, 10000 - batchsize)
     y_origin = cnn_mnist(x_test[start_idx:start_idx+batchsize])
 
     idx = []
