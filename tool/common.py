@@ -56,22 +56,24 @@ def load_data(dataset_name ):
 def imshow(image, label):
     '''
     USAGE: imshow(X_train[0], y_train[0])
-    INPUT:  X_train is a 3-D torch-tensor in the shape of [channel, width, height]
+    INPUT:  X_train is a 3-D or 4-D torch-tensor in the shape of [channel, width, height] or [1, channel, width, height]
                     y_train is a number/str
                     Can be used on both mnist and cifar10
     RETURN: plt the graph with label
 
     This function plot a single graph of mnist or cifar10
 
-    CONTRIBUTER: henryliu, 07.20
+    CONTRIBUTER: henryliu, 07.23
     '''
-    classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+    classes = ('plane', 'car', 'bird', 'cat', 'deer',
+               'dog', 'frog', 'horse', 'ship', 'truck')
     plt.axis('off')
-    if image.shape[1] == 28: # if mnist
-        plt.imshow(image.reshape(28,28), cmap='gray')
-        plt.title('%i' % label, fontsize = 20)
-    else: # if cifar10    
-        plt.imshow( image.permute(1,2,0) )
+    image = image.reshape(-1, image.size(2), image.size(2) )
+    if image.shape[1] == 28:  # if mnist
+        plt.imshow(image.reshape(28, 28), cmap='gray')
+        plt.title('%i' % label, fontsize=20)
+    else:  # if cifar10
+        plt.imshow(image.permute(1, 2, 0))
         plt.title(classes[label])
     plt.show()
 
