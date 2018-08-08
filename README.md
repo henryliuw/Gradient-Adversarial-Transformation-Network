@@ -1,5 +1,5 @@
 # Gradient Adversarial Transformation Network
-University of Michigan-Shanghai Jiao Tong University Joint Intitute 2018SUMMRE Machine Learning and Data Mining(VE488) course project
+University of Michigan-Shanghai Jiao Tong University Joint Intitute 2018SU Machine Learning and Data Mining(VE488) course project
 
 In this project, we implement and enhanced the algorithm introduced in ["Adversarial Transformation Networks: Learning to Generate Adversarial Examples"](https://arxiv.org/abs/1703.09387) by adding gradient as input with advanced architecture.
 
